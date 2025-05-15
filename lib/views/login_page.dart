@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../controllers/pelangganController.dart';
-import '../models/pelangganModel.dart';
-import 'home_page.dart';
+import '../utils/user_session.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,49 +10,35 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController noHPController = TextEditingController();
-  final PelangganController _controller = PelangganController();
+  final emailController = TextEditingController();
+  final noHpController = TextEditingController();
+  final pelangganController = PelangganController();
 
-  bool _isLoading = false;
-  String? _errorMessage;
+  bool loading = false;
+  String? error;
 
-  void _handleLogin() async {
+  void login() async {
     setState(() {
-      _isLoading = true;
-      _errorMessage = null;
+      loading = true;
+      error = null;
     });
 
     final email = emailController.text.trim();
-    final noHp = noHPController.text.trim();
+    final noHp = noHpController.text.trim();
 
-    if (email.isEmpty || noHp.isEmpty) {
-      setState(() {
-        _isLoading = false;
-        _errorMessage = "Email dan No HP wajib diisi";
-      });
-      return;
-    }
-
-    final pelanggan = await _controller.login(email, noHp);
+    final pelanggan = await pelangganController.login(email, noHp);
 
     setState(() {
-      _isLoading = false;
+      loading = false;
     });
 
     if (pelanggan != null) {
-      // Jika login berhasil
-      print('DATA LOGIN BERHASIL: ${pelanggan.toJson()}');
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => HomePage(pelanggan: pelanggan),
-        ),
-      );
+      await UserSession().setPelanggan(pelanggan);
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, '/home');
     } else {
-      // Gagal login
       setState(() {
-        _errorMessage = "Login gagal. Periksa kembali email dan nomor HP.";
+        error = 'Login gagal. Periksa email dan nomor HP.';
       });
     }
   }
@@ -61,35 +46,33 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Login")),
+      appBar: AppBar(title: const Text('Login')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             TextField(
               controller: emailController,
-              decoration: const InputDecoration(labelText: "Email"),
+              decoration: const InputDecoration(labelText: 'Email'),
               keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 12),
             TextField(
-              controller: noHPController,
-              decoration: const InputDecoration(labelText: "Nomor HP"),
+              controller: noHpController,
+              decoration: const InputDecoration(labelText: 'Nomor HP'),
               keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 20),
-            _isLoading
+            loading
                 ? const CircularProgressIndicator()
                 : ElevatedButton(
-              onPressed: _handleLogin,
-              child: const Text("Login"),
+              onPressed: login,
+              child: const Text('Login'),
             ),
-            const SizedBox(height: 10),
-            if (_errorMessage != null)
-              Text(
-                _errorMessage!,
-                style: const TextStyle(color: Colors.red),
-              ),
+            if (error != null) ...[
+              const SizedBox(height: 10),
+              Text(error!, style: const TextStyle(color: Colors.red)),
+            ],
           ],
         ),
       ),
