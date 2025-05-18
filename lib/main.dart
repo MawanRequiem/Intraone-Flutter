@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'views/login_page.dart';
 import 'views/home_page.dart';
+import 'views/payment_page.dart';
 import 'utils/user_session.dart';
 
 void main() {
@@ -33,6 +34,8 @@ class MyApp extends StatelessWidget {
           routes: {
             '/login': (context) => const LoginPage(),
             '/home': (context) => const HomePage(),
+            '/payment': (context) => const PaymentPage(),
+            // '/confirm-success': (context) => const ConfirmSuccessPage(), // kalau sudah ada
           },
         );
       },
