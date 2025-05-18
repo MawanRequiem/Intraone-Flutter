@@ -43,37 +43,97 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
+  Widget gradientButton(String text, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        width: double.infinity,
+        height: 48,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF007BFF), Color(0xFF00C6A0)],
+          ),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: const Center(
+          child: Text(
+            'Masuk',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: noHpController,
-              decoration: const InputDecoration(labelText: 'Nomor HP'),
-              keyboardType: TextInputType.phone,
-            ),
-            const SizedBox(height: 20),
-            loading
-                ? const CircularProgressIndicator()
-                : ElevatedButton(
-              onPressed: login,
-              child: const Text('Login'),
-            ),
-            if (error != null) ...[
-              const SizedBox(height: 10),
-              Text(error!, style: const TextStyle(color: Colors.red)),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const Spacer(),
+              const Text(
+                'Selamat Datang',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF0066B3),
+                ),
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Masuk untuk menikmati layanan terbaik dari IntraOne',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.black87),
+              ),
+              const SizedBox(height: 32),
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  hintText: 'Masukkan email',
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: noHpController,
+                decoration: InputDecoration(
+                  hintText: 'Masukkan No. HP',
+                  filled: true,
+                  fillColor: Colors.white,
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+                keyboardType: TextInputType.phone,
+              ),
+              const SizedBox(height: 24),
+              loading
+                  ? const CircularProgressIndicator()
+                  : gradientButton("Masuk", login),
+              if (error != null) ...[
+                const SizedBox(height: 12),
+                Text(error!, style: const TextStyle(color: Colors.red)),
+              ],
+              const Spacer(),
+              // Ganti dengan gambar jika tersedia
+              Image.asset(
+                'lib/views/assets/logo.png',
+                height: 25,
+                fit: BoxFit.contain,
+              )
             ],
-          ],
+          ),
         ),
       ),
     );

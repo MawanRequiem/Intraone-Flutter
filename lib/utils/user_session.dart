@@ -35,6 +35,11 @@ class UserSession {
     await prefs.remove('pelanggan');
   }
 
+  Future<void> clearSession() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // atau hanya remove key tertentu jika tidak mau hapus semua
+  }
+
   Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.containsKey('pelanggan');

@@ -10,17 +10,16 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  Future<Widget> _getInitialPage() async {
-    final isLoggedIn = await UserSession().isLoggedIn();
-    return isLoggedIn ? const HomePage() : const LoginPage();
+  Future<void> _clearSessionOnStart() async {
+    await UserSession().clearSession(); // Paksa hapus sesi saat app start
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: _getInitialPage(),
+      future: _clearSessionOnStart(), // hapus sesi login saat start
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (snapshot.connectionState != ConnectionState.done) {
           return const MaterialApp(
             home: Scaffold(body: Center(child: CircularProgressIndicator())),
           );
@@ -30,7 +29,7 @@ class MyApp extends StatelessWidget {
           title: 'IntraOne App',
           debugShowCheckedModeBanner: false,
           theme: ThemeData(primarySwatch: Colors.blue),
-          home: snapshot.data,
+          home: const LoginPage(), // Selalu mulai dari login
           routes: {
             '/login': (context) => const LoginPage(),
             '/home': (context) => const HomePage(),
