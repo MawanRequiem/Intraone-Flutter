@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/views/payment_method_page.dart';
 import 'views/login_page.dart';
 import 'views/home_page.dart';
 import 'views/payment_page.dart';
@@ -36,9 +37,15 @@ class MyApp extends StatelessWidget {
             '/login': (context) => const LoginPage(),
             '/home': (context) => const HomePage(),
             '/payment': (context) => const PaymentPage(),
-            // '/confirm-success': (context) => const ConfirmSuccessPage(), // kalau sudah ada
-          },
-        );
+            '/payment-method': (context) {
+              final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+              return PaymentMethodPage(
+                  userId: args['userId'],
+                  metode: args['metode'],
+                  total: args['total'],
+              );
+            },
+          });
       },
     );
   }
