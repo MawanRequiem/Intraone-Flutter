@@ -94,11 +94,17 @@ class _HomePageState extends State<HomePage> {
                         _infoLine('Tenggat Waktu: ${formatDate(pelanggan!.expiryDate)}'),
                         _statusLine(pelanggan!.status),
                         const SizedBox(height: 24),
-                        _gradientButton('Perpanjang Paket', [Color(0xFF00C6A0), Color(0xFF00B894)]),
+                        _gradientButton('Perpanjang Paket',
+                          [Color(0xFF00C6A0), Color(0xFF00B894)],
+                          onTap: () {
+                            if (pelanggan != null) {
+                              showPerpanjangConfirmation(context, pelanggan!);
+                            }
+                          },),
                         const SizedBox(height: 12),
-                        _gradientButton('Upgrade Paket', [Color(0xFF00B4DB), Color(0xFF0083B0)]),
+                        _gradientButton('Upgrade Paket', [Color(0xFF00B4DB), Color(0xFF0083B0)], onTap: () {  }),
                         const SizedBox(height: 12),
-                        _gradientButton('Batalkan Paket', [Color(0xFFFF512F), Color(0xFFDD2476)]),
+                        _gradientButton('Batalkan Paket', [Color(0xFFFF512F), Color(0xFFDD2476)], onTap: () {  }),
                       ],
                     ),
                   ),
@@ -153,11 +159,9 @@ class _HomePageState extends State<HomePage> {
   }
 
 
-  Widget _gradientButton(String label, List<Color> colors) {
+  Widget _gradientButton(String label, List<Color> colors, {required Null Function() onTap}) {
     return InkWell(
-      onTap: () {
-        // TODO: Tambahkan logika aksi
-      },
+      onTap: onTap,
       borderRadius: BorderRadius.circular(10),
       child: Container(
         height: 48,
@@ -207,4 +211,37 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+  void showPerpanjangConfirmation(BuildContext context, Pelanggan pelanggan) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Konfirmasi Perpanjang"),
+          content: Text("Perpanjang paket ${pelanggan.paketInternet} selama ${pelanggan.durasiBerlangganan} bulan?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Batal"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.pushNamed(
+                  context,
+                  '/payment',
+                  arguments: {
+                    'jenis': 'perpanjang',
+                    'pelanggan': pelanggan,
+                  },
+                );
+              },
+              child: const Text("Lanjut Bayar"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 }
