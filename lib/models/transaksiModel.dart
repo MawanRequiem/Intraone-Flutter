@@ -22,12 +22,12 @@ class Transaksi {
       durasi: json['durasi'] is int
           ? json['durasi']
           : int.tryParse(json['durasi'].toString()) ?? 0,
-      jenis: json['jenis'] ?? '',
-      metode: json['metode'] ?? '',
-      paket: json['paket'] ?? '',
-      tanggal: json['tanggal'] ?? '',
-      total: json['total'] ?? '',
-      userId: json['userId'] ?? '',
+      jenis: json['jenis']?.toString() ?? '',
+      metode: json['metode']?.toString() ?? '',
+      paket: json['paket']?.toString() ?? '',
+      tanggal: json['tanggal']?.toString() ?? '',
+      total: json['total']?.toString() ?? '',
+      userId: json['userId']?.toString() ?? '',
     );
   }
 
@@ -42,4 +42,5 @@ class Transaksi {
       'userId': userId,
     };
   }
+}
 }
