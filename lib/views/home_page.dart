@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../models/pelangganModel.dart';
 import '../utils/user_session.dart';
 import 'profile_page.dart';
+import 'history_transaksi.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -184,6 +185,8 @@ class _HomePageState extends State<HomePage> {
       child: BottomNavigationBar(
         currentIndex: currentIndex,
         onTap: (index) {
+    if (index == 1) {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryTransaksiPage()));}
           if (index == 2) {
             Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()));
           } else {

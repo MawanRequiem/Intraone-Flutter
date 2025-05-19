@@ -18,11 +18,12 @@ class ProfilePage extends StatelessWidget {
 
         return Scaffold(
           backgroundColor: Colors.white,
-          body: Column(
+          body: Stack(
             children: [
+              // Gradient header
               Container(
+                height: 120,
                 width: double.infinity,
-                padding: const EdgeInsets.all(24),
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     colors: [Color(0xFF007BFF), Color(0xFF00C6A0)],
@@ -30,27 +31,42 @@ class ProfilePage extends StatelessWidget {
                     end: Alignment.bottomRight,
                   ),
                 ),
-                child: const Text(
-                  'Profil Pengguna',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
               ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: ListView(
-                    children: [
-                      _infoRow('Nama:', pelanggan.nama),
-                      _infoRow('Email:', pelanggan.email),
-                      _infoRow('Tempat, Tanggal Lahir:', '${pelanggan.tempatLahir}, ${pelanggan.tanggalLahir}'),
-                      _infoRow('No. KTP:', pelanggan.noKTP),
-                      _infoRow('Alamat:', pelanggan.alamat),
-                      _infoRow('Kota:', pelanggan.kota),
-                      _infoRow('Paket:', pelanggan.paketInternet),
-                      const SizedBox(height: 32),
-                      _logoutButton(context),
-                    ],
-                  ),
+
+              SafeArea(
+                child: Column(
+                  children: [
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24),
+                      child: const Text(
+                        'Profil Pengguna',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 40, 24, 20),
+                        child: ListView(
+                          children: [
+                            _infoBlock('Nama:', pelanggan.nama),
+                            _infoBlock('Email:', pelanggan.email),
+                            _infoBlock('Tempat, Tanggal Lahir:', '${pelanggan.tempatLahir}, ${pelanggan.tanggalLahir}'),
+                            _infoBlock('No. KTP:', pelanggan.noKTP),
+                            _infoBlock('Alamat:', pelanggan.alamat),
+                            _infoBlock('Kota:', pelanggan.kota),
+                            _infoBlock('Paket:', pelanggan.paketInternet),
+                            const SizedBox(height: 32),
+                            _logoutButton(context),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -61,17 +77,19 @@ class ProfilePage extends StatelessWidget {
     );
   }
 
-  Widget _infoRow(String label, String value) {
+  Widget _infoBlock(String title, String value) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
-      child: RichText(
-        text: TextSpan(
-          style: const TextStyle(color: Colors.black, fontSize: 16),
-          children: [
-            TextSpan(text: '$label ', style: const TextStyle(fontWeight: FontWeight.bold)),
-            TextSpan(text: value),
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+          const SizedBox(height: 4),
+          Text(value, style: const TextStyle(fontSize: 15)),
+        ],
       ),
     );
   }
@@ -87,6 +105,7 @@ class ProfilePage extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       child: Container(
         height: 48,
+        width: double.infinity,
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             colors: [Color(0xFFFF512F), Color(0xFFDD2476)],
