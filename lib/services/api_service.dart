@@ -52,18 +52,6 @@ class ApiService {
     }
   }
 
-  static Future<bool> postTransaksi(Transaksi transaksi) async {
-    try {
-      final response = await post("transaksi/create", transaksi.toJson());
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        print("Gagal menyimpan transaksi: ${response.body}");
-        return false;
-      }
-    } catch (e) {
-      print("Error kirimTransaksi: $e");
-      return false;
-    }
-  }
+
+
 }
