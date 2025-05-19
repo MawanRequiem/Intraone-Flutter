@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/pelangganModel.dart';
 import '../utils/user_session.dart';
+import 'home_page.dart';
+import 'history_transaksi.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -132,9 +134,13 @@ class ProfilePage extends StatelessWidget {
         currentIndex: 2,
         onTap: (index) {
           if (index == 0) {
-            Navigator.pop(context); // kembali ke home
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomePage()));
+          } else if (index == 1) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HistoryTransaksiPage()));
           }
         },
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         selectedItemColor: const Color(0xFF007BFF),
         unselectedItemColor: Colors.black54,
         items: const [

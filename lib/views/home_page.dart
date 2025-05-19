@@ -183,16 +183,12 @@ class _HomePageState extends State<HomePage> {
         border: Border(top: BorderSide(color: Colors.black12)),
       ),
       child: BottomNavigationBar(
-        currentIndex: currentIndex,
+        currentIndex: 0,
         onTap: (index) {
-    if (index == 1) {
-    Navigator.push(context, MaterialPageRoute(builder: (_) => const HistoryTransaksiPage()));}
-          if (index == 2) {
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()));
-          } else {
-            setState(() {
-              currentIndex = index;
-            });
+          if (index == 1) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HistoryTransaksiPage()));
+          } else if (index == 2) {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const ProfilePage()));
           }
         },
         backgroundColor: Colors.transparent,

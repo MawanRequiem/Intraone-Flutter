@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import '../models/transaksiModel.dart';
 import '../controllers/transaksiController.dart';
 import '../utils/user_session.dart';
-import '../models/pelangganModel.dart';
 import 'home_page.dart';
 import 'profile_page.dart';
 
@@ -54,7 +53,7 @@ class _HistoryTransaksiPageState extends State<HistoryTransaksiPage> {
       body: Stack(
         children: [
           Container(
-            height: 140,
+            height: 120,
             width: double.infinity,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -70,6 +69,7 @@ class _HistoryTransaksiPageState extends State<HistoryTransaksiPage> {
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
+                  margin: const EdgeInsets.only(bottom: 40),
                   child: const Text(
                     'Riwayat Transaksi',
                     style: TextStyle(
@@ -91,15 +91,20 @@ class _HistoryTransaksiPageState extends State<HistoryTransaksiPage> {
                       itemBuilder: (context, index) {
                         final trx = riwayat[index];
                         return Card(
+                          elevation: 0,
                           margin: const EdgeInsets.symmetric(vertical: 8),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
+                            borderRadius: BorderRadius.circular(8),
+                            side: const BorderSide(color: Colors.black12),
+                          ),
+                          color: Colors.white,
                           child: Padding(
                             padding: const EdgeInsets.all(16),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _row("Tanggal", formatTanggal(trx.tanggal)),
+                                _row("Jenis Transaksi", trx.jenis),
                                 _row("Paket", trx.paket),
                                 _row("Total", trx.total),
                               ],
@@ -121,12 +126,23 @@ class _HistoryTransaksiPageState extends State<HistoryTransaksiPage> {
 
   Widget _row(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
-          Text(value),
+          Text(
+            "$label:",
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              color: Color(0xFF007BFF), // BIRU sesuai gradient header
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(fontSize: 15),
+          ),
         ],
       ),
     );
@@ -139,7 +155,7 @@ class _HistoryTransaksiPageState extends State<HistoryTransaksiPage> {
         border: Border(top: BorderSide(color: Colors.black12)),
       ),
       child: BottomNavigationBar(
-        currentIndex: currentIndex,
+        currentIndex: 1,
         onTap: (index) {
           if (index == 0) {
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomePage()));
@@ -147,6 +163,8 @@ class _HistoryTransaksiPageState extends State<HistoryTransaksiPage> {
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const ProfilePage()));
           }
         },
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         selectedItemColor: const Color(0xFF007BFF),
         unselectedItemColor: Colors.black54,
         items: const [
