@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:http/http.dart';
 import '../models/transaksiModel.dart';
 import '../services/api_service.dart';
 
@@ -12,4 +13,16 @@ class TransaksiController {
     }
     return [];
   }
+
+  Future<bool> postTransaksi(Transaksi transaksi) async {
+    final response = await ApiService.post('transaksi', transaksi.toJson());
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      return true;
+    } else {
+      print('Gagal menyimpan transaksi: ${response.body}');
+      return false;
+    }
+  }
+
 }
