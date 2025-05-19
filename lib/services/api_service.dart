@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../utils/constants.dart';
+import '../models/transaksiModel.dart';
 
 class ApiService {
   static Uri _buildUri(String endpoint) {
@@ -48,6 +49,21 @@ class ApiService {
       return await http.delete(uri, headers: AppConstants.jsonHeaders);
     } catch (e) {
       throw Exception('DELETE request failed: $e');
+    }
+  }
+
+  static Future<bool> postTransaksi(Transaksi transaksi) async {
+    try {
+      final response = await post("transaksi/create", transaksi.toJson());
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        print("Gagal menyimpan transaksi: ${response.body}");
+        return false;
+      }
+    } catch (e) {
+      print("Error kirimTransaksi: $e");
+      return false;
     }
   }
 }
