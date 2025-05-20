@@ -80,6 +80,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
   }
 
   Future<void> confirmPayment() async {
+
     final transaksi = Transaksi(
       durasi: 1, // sementara 1, bisa disesuaikan jika ada data durasi di args
       jenis: 'perpanjang',
@@ -90,7 +91,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       userId: widget.userId,
     );
 
-
+    print(transaksi.toJson());
     final response = await transaksiController.postTransaksi(transaksi);
     if (response) {
       final okLangganan = await transaksiController.updateLangganan(
@@ -112,7 +113,8 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       Future.delayed(const Duration(seconds: 2), () async {
         final updatedPelanggan = await pelangganController.getPelanggan(widget.userId);
         if (updatedPelanggan != null) {
-          UserSession().savePelanggan(updatedPelanggan);
+          final withUserId = updatedPelanggan.copyWithUserId(widget.userId);
+          await UserSession().setPelanggan(withUserId);
         }
         Navigator.pushReplacementNamed(context, '/home');
       });
