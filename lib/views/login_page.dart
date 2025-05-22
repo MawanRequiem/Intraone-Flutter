@@ -1,6 +1,8 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../controllers/pelangganController.dart';
 import '../utils/user_session.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -42,6 +44,16 @@ class _LoginPageState extends State<LoginPage> {
       });
     }
   }
+
+  void launchRegisterURL() async {
+    const url = 'https://enduring-aria-454904-d8.et.r.appspot.com/';
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    } else {
+      throw 'Tidak bisa membuka URL: $url';
+    }
+  }
+
 
   Widget gradientButton(String text, VoidCallback onTap) {
     return InkWell(
@@ -125,13 +137,32 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 12),
                 Text(error!, style: const TextStyle(color: Colors.red)),
               ],
+              const SizedBox(height: 16),
+              RichText(
+                text: TextSpan(
+                  text: 'Belum punya paket? ',
+                  style: const TextStyle(color: Colors.black87),
+                  children: [
+                    TextSpan(
+                      text: 'Daftar Sekarang',
+                      style: const TextStyle(
+                        color: Color(0xFF007BFF),
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                      ),
+                      recognizer: TapGestureRecognizer()..onTap = launchRegisterURL,
+                    ),
+                  ],
+                ),
+              ),
               const Spacer(),
               // Ganti dengan gambar jika tersedia
               Image.asset(
                 'lib/views/assets/logo.png',
                 height: 25,
                 fit: BoxFit.contain,
-              )
+              ),
+
             ],
           ),
         ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/views/payment_method_page.dart';
 import '../models/pelangganModel.dart';
+import '../controllers/pelangganController.dart';
 import '../utils/user_session.dart';
 import 'profile_page.dart';
 import 'history_transaksi.dart';
@@ -34,6 +36,58 @@ class _HomePageState extends State<HomePage> {
         loading = false;
       });
     }
+  }
+
+  Future<void> updateHalaman() async {
+    final data = pelangganController.getPelanggan(pelanggan!.userId);
+    if (data == null) {
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, '/login');
+    } else {
+      setState(() async {
+        pelanggan = await data;
+
+        loading = false;
+      });
+    }
+  }
+
+
+  void _showCancelConfirmationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Konfirmasi Pembatalan'),
+        content: Text('Apakah Anda yakin ingin membatalkan paket?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Tidak'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context); // tutup dialog dulu
+              final UID = pelanggan!.userId;
+              print(UID);
+              final controller = PelangganController();
+              final success = await controller.updateStatus(UID, 'Request Pembatalan');
+              if (success) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Permintaan pembatalan berhasil dikirim')),
+                );
+                await updateHalaman();
+
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Gagal mengirim permintaan pembatalan')),
+                );
+              }
+            },
+            child: Text('Ya, Saya ingin batalkan paket'),
+          ),
+        ],
+      ),
+    );
   }
 
   String formatDate(String rawDate) {
@@ -107,7 +161,10 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(height: 12),
                         _gradientButton('Upgrade Paket', [Color(0xFF00B4DB), Color(0xFF0083B0)], onTap: () {  }),
                         const SizedBox(height: 12),
-                        _gradientButton('Batalkan Paket', [Color(0xFFFF512F), Color(0xFFDD2476)], onTap: () {  }),
+                        _gradientButton('Batalkan Paket', [Color(0xFFFF512F), Color(0xFFDD2476)],
+                            onTap: () {
+                              _showCancelConfirmationDialog();
+                            }),
                       ],
                     ),
                   ),
