@@ -97,7 +97,10 @@ class _HomePageState extends State<HomePage> {
                         _gradientButton('Perpanjang Paket',
                           [Color(0xFF00C6A0), Color(0xFF00B894)],
                           onTap: () {
+                            final pelanggan = this.pelanggan;
                             if (pelanggan != null) {
+
+                              print(pelanggan.toJson());
                               showPerpanjangConfirmation(context, pelanggan!);
                             }
                           },),
@@ -222,6 +225,7 @@ class _HomePageState extends State<HomePage> {
             ),
             ElevatedButton(
               onPressed: () {
+                print(pelanggan.toJson());
                 Navigator.of(context).pop();
                 Navigator.pushNamed(
                   context,

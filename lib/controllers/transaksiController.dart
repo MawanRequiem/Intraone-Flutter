@@ -20,9 +20,23 @@ class TransaksiController {
     if (response.statusCode == 200 || response.statusCode == 201) {
       return true;
     } else {
+      print(transaksi.toJson());
       print('Gagal menyimpan transaksi: ${response.body}');
       return false;
     }
   }
 
+  Future<bool> updateLangganan(String userId, int durasi) async {
+    final response = await ApiService.put(
+      'pelanggan/$userId/langganan',
+      { 'durasi': durasi },
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print('Gagal update langganan: ${response.body}');
+      return false;
+    }
+  }
 }

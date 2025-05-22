@@ -102,4 +102,31 @@ class Pelanggan {
       'totalHarga': totalHarga,
     };
   }
+
+  Pelanggan copyWithUserId(String newUserId) {
+    return Pelanggan(
+      userId: newUserId,
+      alamat: alamat,
+      biayaAdmin: biayaAdmin,
+      durasiBerlangganan: durasiBerlangganan,
+      email: email,
+      expiryDate: expiryDate,
+      hargaPaket: hargaPaket,
+      kategoriPaket: kategoriPaket,
+      kecamatan: kecamatan,
+      kota: kota,
+      nama: nama,
+      noHP: noHP,
+      noHPAlternatif: noHPAlternatif,
+      noKTP: noKTP,
+      noTeleponRumah: noTeleponRumah,
+      paketInternet: paketInternet,
+      ppn: ppn,
+      status: status,
+      subscriptionDate: subscriptionDate,
+      tanggalLahir: tanggalLahir,
+      tempatLahir: tempatLahir,
+      totalHarga: totalHarga,
+    );
+  }
 }

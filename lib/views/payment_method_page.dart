@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:mobile/controllers/pelangganController.dart';
 import 'package:mobile/views/home_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../controllers/transaksiController.dart';
 import '../models/transaksiModel.dart';
+import '../utils/user_session.dart';
 import 'home_page.dart';
 final transaksiController = TransaksiController();
+final pelangganController = PelangganController();
 
 class PaymentMethodPage extends StatefulWidget {
   final String userId;
@@ -28,6 +31,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
   late Timer _timer;
   int _countdown = 900; // 15 menit = 900 detik
   bool isConfirmed = false;
+
 
   @override
   void initState() {
@@ -76,6 +80,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
   }
 
   Future<void> confirmPayment() async {
+
     final transaksi = Transaksi(
       durasi: 1, // sementara 1, bisa disesuaikan jika ada data durasi di args
       jenis: 'perpanjang',
@@ -85,22 +90,41 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       total: widget.total,
       userId: widget.userId,
     );
+
+    print(transaksi.toJson());
     final response = await transaksiController.postTransaksi(transaksi);
     if (response) {
+      final okLangganan = await transaksiController.updateLangganan(
+        widget.userId,
+        transaksi.durasi,
+      );
+      if (!okLangganan) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Transaksi sudah dicatat, tapi gagal update masa langganan.")),
+        );
+        return;
+      }
       setState(() {
         isConfirmed = true;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Pembayaran berhasil dikonfirmasi."))
+          const SnackBar(content: Text("Pembayaran berhasil dikonfirmasi."))
       );
-      Future.delayed(const Duration(seconds: 2), () {
+      Future.delayed(const Duration(seconds: 2), () async {
+        final updatedPelanggan = await pelangganController.getPelanggan(widget.userId);
+        if (updatedPelanggan != null) {
+          final withUserId = updatedPelanggan.copyWithUserId(widget.userId);
+          await UserSession().setPelanggan(withUserId);
+        }
         Navigator.pushReplacementNamed(context, '/home');
       });
-      } else {
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Gagal menyimpan transaksi.")),
       );
     }
+
+
   }
 
   @override

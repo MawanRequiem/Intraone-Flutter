@@ -11,6 +11,12 @@ class UserSession {
 
   Pelanggan? _pelanggan;
 
+  Future<void> savePelanggan(Pelanggan pelanggan) async {
+    _pelanggan = pelanggan;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('pelanggan', jsonEncode(pelanggan.toJson()));
+  }
+
   Future<void> setPelanggan(Pelanggan pelanggan) async {
     _pelanggan = pelanggan;
     final prefs = await SharedPreferences.getInstance();
