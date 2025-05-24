@@ -80,12 +80,12 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
   }
 
   Future<void> confirmPayment() async {
-
+    final pelanggan = await UserSession().getPelanggan();
     final transaksi = Transaksi(
-      durasi: 1, // sementara 1, bisa disesuaikan jika ada data durasi di args
+      durasi: pelanggan?.durasiBerlangganan ?? 1, // fallback ke 1 jika null
       jenis: 'perpanjang',
       metode: widget.metode,
-      paket: 'Paket Internet', // atau ambil dari argumen jika tersedia
+      paket: pelanggan?.paketInternet ?? 'Paket Internet',
       tanggal: DateTime.now().toIso8601String(),
       total: widget.total,
       userId: widget.userId,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/views/batalkan_paket_page.dart';
 import 'package:mobile/views/payment_method_page.dart';
 import 'views/login_page.dart';
 import 'views/home_page.dart';
@@ -34,6 +35,7 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(primarySwatch: Colors.blue),
           home: snapshot.data,
           routes: {
+            '/batalkan-paket': (context) => const BatalkanPaketPage(),
             '/login': (context) => const LoginPage(),
             '/home': (context) => const HomePage(),
             '/payment': (context) => const PaymentPage(),

@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../models/pelangganModel.dart';
 import '../services/api_service.dart';
@@ -28,5 +30,19 @@ class PelangganController {
       return Pelanggan.fromJson(data);
     }
     return null;
+  }
+
+  Future<bool> updateStatus(String userId, String status) async {
+    final response = await ApiService.put(
+      'pelanggan/$userId',
+      { 'status': status },
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      print('Gagal update langganan: ${response.body}');
+      return false;
+    }
   }
 }
