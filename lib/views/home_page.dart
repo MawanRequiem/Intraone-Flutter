@@ -26,9 +26,26 @@ class _HomePageState extends State<HomePage> {
   }
 
   void loadPelanggan() async {
-    final data = await UserSession().getPelanggan();
-    if (data == null) {
+    final session = await UserSession().getPelanggan();
+    if (session == null) {
       if (!mounted) return;
+      Navigator.pushReplacementNamed(context, '/login');
+    } else {
+      final updated = await PelangganController().getPelanggan(session.userId); // ambil dari RTDB
+      if (!mounted) return;
+      setState(() {
+        pelanggan = updated ?? session; // fallback ke session kalau gagal
+        loading = false;
+      });
+    }
+  }
+
+
+  Future<void> updateHalaman() async {
+    final data = await pelangganController.getPelanggan(pelanggan!.userId);
+    if (!mounted) return;
+
+    if (data == null) {
       Navigator.pushReplacementNamed(context, '/login');
     } else {
       setState(() {
@@ -38,57 +55,72 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> updateHalaman() async {
-    final data = pelangganController.getPelanggan(pelanggan!.userId);
-    if (data == null) {
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/login');
-    } else {
-      setState(() async {
-        pelanggan = await data;
-
-        loading = false;
-      });
-    }
-  }
-
-
-  void _showCancelConfirmationDialog() {
+  void showPerpanjangConfirmation(BuildContext context, Pelanggan pelanggan) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Konfirmasi Pembatalan'),
-        content: Text('Apakah Anda yakin ingin membatalkan paket?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Tidak'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context); // tutup dialog dulu
-              final UID = pelanggan!.userId;
-              print(UID);
-              final controller = PelangganController();
-              final success = await controller.updateStatus(UID, 'Request Pembatalan');
-              if (success) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Permintaan pembatalan berhasil dikirim')),
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Konfirmasi Perpanjang"),
+          content: Text("Perpanjang paket ${pelanggan.paketInternet} selama ${pelanggan.durasiBerlangganan} bulan?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Batal"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                print(pelanggan.toJson());
+                Navigator.of(context).pop();
+                Navigator.pushNamed(
+                  context,
+                  '/payment',
+                  arguments: {
+                    'jenis': 'perpanjang',
+                    'pelanggan': pelanggan,
+                  },
                 );
-                await updateHalaman();
-
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Gagal mengirim permintaan pembatalan')),
-                );
-              }
-            },
-            child: Text('Ya, Saya ingin batalkan paket'),
-          ),
-        ],
-      ),
+              },
+              child: const Text("Lanjut Bayar"),
+            ),
+          ],
+        );
+      },
     );
   }
+
+  void showBatalkanConfirmation(BuildContext context, Pelanggan pelanggan) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Konfirmasi Pembatalan"),
+          content: const Text("Apakah Anda yakin ingin membatalkan paket ini?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Batal"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // tutup dialog
+                Navigator.pushNamed(
+                  context,
+                  '/batalkan-paket',
+                  arguments: pelanggan,
+                ).then((result) {
+                  if (result == true) {
+                    loadPelanggan(); // refresh data
+                  }
+                });
+              },
+              child: const Text("Lanjutkan"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   String formatDate(String rawDate) {
     try {
@@ -161,10 +193,13 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(height: 12),
                         _gradientButton('Upgrade Paket', [Color(0xFF00B4DB), Color(0xFF0083B0)], onTap: () {  }),
                         const SizedBox(height: 12),
-                        _gradientButton('Batalkan Paket', [Color(0xFFFF512F), Color(0xFFDD2476)],
-                            onTap: () {
-                              _showCancelConfirmationDialog();
-                            }),
+                        _gradientButton(
+                          'Batalkan Paket',
+                          [Color(0xFFFF512F), Color(0xFFDD2476)],
+                          onTap: () {
+                            showBatalkanConfirmation(context, pelanggan!);
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -268,37 +303,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void showPerpanjangConfirmation(BuildContext context, Pelanggan pelanggan) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Konfirmasi Perpanjang"),
-          content: Text("Perpanjang paket ${pelanggan.paketInternet} selama ${pelanggan.durasiBerlangganan} bulan?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text("Batal"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                print(pelanggan.toJson());
-                Navigator.of(context).pop();
-                Navigator.pushNamed(
-                  context,
-                  '/payment',
-                  arguments: {
-                    'jenis': 'perpanjang',
-                    'pelanggan': pelanggan,
-                  },
-                );
-              },
-              child: const Text("Lanjut Bayar"),
-            ),
-          ],
-        );
-      },
-    );
-  }
+
 
 }

@@ -3,6 +3,7 @@ import 'package:mobile/views/payment_method_page.dart';
 import 'views/login_page.dart';
 import 'views/home_page.dart';
 import 'views/payment_page.dart';
+import 'views/batalkan_paket_page.dart';
 import 'utils/user_session.dart';
 
 void main() {
@@ -45,6 +46,7 @@ class MyApp extends StatelessWidget {
                   total: args['total'],
               );
             },
+            '/batalkan-paket': (context) => const BatalkanPaketPage(),
           });
       },
     );
