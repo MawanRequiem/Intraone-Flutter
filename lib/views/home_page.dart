@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mobile/views/payment_method_page.dart';
+import 'package:mobile/views/upgrade_page.dart';
 import '../models/pelangganModel.dart';
 import '../controllers/pelangganController.dart';
 import '../utils/user_session.dart';
@@ -32,9 +33,10 @@ class _HomePageState extends State<HomePage> {
       Navigator.pushReplacementNamed(context, '/login');
     } else {
       final updated = await PelangganController().getPelanggan(session.userId); // ambil dari RTDB
+      final withUserId = updated!.copyWithUserId(session.userId);
       if (!mounted) return;
       setState(() {
-        pelanggan = updated ?? session; // fallback ke session kalau gagal
+        pelanggan = withUserId ?? session; // fallback ke session kalau gagal
         loading = false;
       });
     }
@@ -191,7 +193,12 @@ class _HomePageState extends State<HomePage> {
                             }
                           },),
                         const SizedBox(height: 12),
-                        _gradientButton('Upgrade Paket', [Color(0xFF00B4DB), Color(0xFF0083B0)], onTap: () {  }),
+                        _gradientButton('Upgrade Paket', [Color(0xFF00B4DB), Color(0xFF0083B0)], onTap: () {
+                            final pelanggan = this.pelanggan;
+                            if (pelanggan != null) {
+                              Navigator.push(context, MaterialPageRoute(builder: (_) => UpgradePage(pelanggan: pelanggan)),);}
+                            }
+                        ),
                         const SizedBox(height: 12),
                         _gradientButton(
                           'Batalkan Paket',

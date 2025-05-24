@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../models/pelangganModel.dart';
 import '../utils/user_session.dart';
+import 'easter_egg_page.dart';
 import 'home_page.dart';
 import 'history_transaksi.dart';
+int _janitraTapCount = 0;
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -55,7 +57,18 @@ class ProfilePage extends StatelessWidget {
                         padding: const EdgeInsets.fromLTRB(24, 40, 24, 20),
                         child: ListView(
                           children: [
-                            _infoBlock('Nama:', pelanggan.nama),
+                        pelanggan.nama == 'Janitra Sutanto'
+                        ? GestureDetector(
+                            onTap: () {
+                      _janitraTapCount++;
+                      if (_janitraTapCount >= 5) {
+                      _janitraTapCount = 0;
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const EasterEggPage()));
+                      }
+                      },
+                        child: _infoBlock('Nama:', pelanggan.nama),
+                      )
+                            : _infoBlock('Nama:', pelanggan.nama),
                             _infoBlock('Email:', pelanggan.email),
                             _infoBlock('Tempat, Tanggal Lahir:', '${pelanggan.tempatLahir}, ${pelanggan.tanggalLahir}'),
                             _infoBlock('No. KTP:', pelanggan.noKTP),

@@ -72,6 +72,7 @@ flutter:
     - lib/views/assets/OVO.png
     - lib/views/assets/QRIS.png
     - lib/views/assets/partner6.png
+    - lib/views/assets/birthday_cake.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

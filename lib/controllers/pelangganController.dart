@@ -45,4 +45,10 @@ class PelangganController {
       return false;
     }
   }
+
+  Future<bool> updatePelanggan(String userId, Map<String, dynamic> data) async {
+    final response = await ApiService.put('pelanggan/$userId', data);
+    return response.statusCode == 200;
+  }
+
 }
