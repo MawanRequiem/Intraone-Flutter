@@ -73,6 +73,7 @@ flutter:
     - lib/views/assets/QRIS.png
     - lib/views/assets/partner6.png
     - lib/views/assets/birthday_cake.png
+    - lib/views/assets/QRcode.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

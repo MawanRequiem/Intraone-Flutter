@@ -5,6 +5,7 @@ import '../controllers/transaksiController.dart';
 import '../utils/user_session.dart';
 import 'home_page.dart';
 import 'profile_page.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class HistoryTransaksiPage extends StatefulWidget {
   const HistoryTransaksiPage({super.key});
@@ -21,7 +22,9 @@ class _HistoryTransaksiPageState extends State<HistoryTransaksiPage> {
   @override
   void initState() {
     super.initState();
-    fetchTransaksi();
+    initializeDateFormatting('id_ID', null).then((_) {
+      fetchTransaksi();
+    });
   }
 
   void fetchTransaksi() async {
@@ -37,12 +40,19 @@ class _HistoryTransaksiPageState extends State<HistoryTransaksiPage> {
     });
   }
 
-  String formatTanggal(String raw) {
+  String formatTanggal(String rawDateTime) {
+    final dateTime = DateTime.parse(rawDateTime).toLocal();
+    final formatter = DateFormat("d MMMM yyyy 'pukul' HH.mm", 'id_ID');
+    return '${formatter.format(dateTime)} WIB';
+  }
+
+  String formatRupiah(String rawTotal) {
     try {
-      final date = DateTime.parse(raw).toLocal();
-      return DateFormat("d MMMM y HH.mm", 'id_ID').format(date) + ' WIB';
+      final amount = int.parse(rawTotal);
+      final formatter = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp. ', decimalDigits: 0);
+      return formatter.format(amount);
     } catch (_) {
-      return raw;
+      return 'Rp. 0';
     }
   }
 
@@ -106,7 +116,7 @@ class _HistoryTransaksiPageState extends State<HistoryTransaksiPage> {
                                 _row("Tanggal", formatTanggal(trx.tanggal)),
                                 _row("Jenis Transaksi", trx.jenis),
                                 _row("Paket", trx.paket),
-                                _row("Total", trx.total),
+                                _row("Total", formatRupiah(trx.total)),
                               ],
                             ),
                           ),
