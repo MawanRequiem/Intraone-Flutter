@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:mobile/controllers/pelangganController.dart';
 import 'package:mobile/views/home_page.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -36,8 +35,6 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
   late Timer _timer;
   int _countdown = 900;
   bool isConfirmed = false;
-
-  final NumberFormat currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
 
   @override
   void initState() {
@@ -94,7 +91,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       metode: widget.metode,
       paket: pelanggan.paketInternet,
       tanggal: DateTime.now().toIso8601String(),
-      total: currencyFormat.format(int.parse(widget.total)),
+      total: widget.total,
       userId: pelanggan.userId,
     );
 
@@ -107,11 +104,12 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       return;
     }
 
+    // Update data pelanggan: paket, harga, total
     final updateData = {
       'paketInternet': pelanggan.paketInternet,
       'kategoriPaket': pelanggan.kategoriPaket,
       'hargaPaket': pelanggan.hargaPaket,
-      'totalHarga': currencyFormat.format(int.parse(widget.total)),
+      'totalHarga': pelanggan.totalHarga,
     };
 
     final updateSuccess = await pelangganController.updatePelanggan(pelanggan.userId, updateData);
@@ -122,6 +120,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       return;
     }
 
+    // Update durasi/expiryDate
     final okLangganan = await transaksiController.updateLangganan(
       pelanggan.userId,
       transaksi.durasi,
@@ -139,6 +138,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       const SnackBar(content: Text("Pembayaran berhasil dikonfirmasi.")),
     );
 
+    // Simpan kembali ke session
     Future.delayed(const Duration(seconds: 2), () async {
       final updatedPelanggan = await pelangganController.getPelanggan(pelanggan.userId);
       if (updatedPelanggan != null) {
@@ -152,7 +152,6 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
   @override
   Widget build(BuildContext context) {
     final va = generateVA(widget.pelanggan.userId);
-    final totalRupiah = currencyFormat.format(int.parse(widget.total));
 
     Widget content;
 
@@ -160,7 +159,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       content = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Total: $totalRupiah", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text("Total: ${widget.total}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
           ElevatedButton.icon(
             onPressed: openOvoApp,
@@ -173,7 +172,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
     } else if (widget.metode == 'qris' || widget.metode == 'gopay') {
       content = Column(
         children: [
-          Text("Total: $totalRupiah", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text("Total: ${widget.total}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
           Image.asset(
             'assets/images/qris_placeholder.png',
@@ -186,7 +185,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       content = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Total: $totalRupiah", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text("Total: ${widget.total}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
           const Text("Virtual Account Anda:", style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../models/pelangganModel.dart';
 
 class UpgradePage extends StatefulWidget {
@@ -20,8 +19,6 @@ class _UpgradePageState extends State<UpgradePage> {
     '70 Mbps Premium': '250000',
     '150 Mbps Ultra': '350000',
   };
-
-  final NumberFormat currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
 
   Widget _gradientButton(String label, List<Color> colors, VoidCallback? onTap, {bool disabled = false}) {
     return InkWell(
@@ -146,7 +143,7 @@ class _UpgradePageState extends State<UpgradePage> {
                             ),
                             child: ListTile(
                               title: Text(entry.key),
-                              subtitle: Text("${currencyFormat.format(int.parse(entry.value))}/bulan"),
+                              subtitle: Text("Rp ${entry.value}/bulan"),
                               onTap: () => setState(() => selectedPaket = entry.key),
                             ),
                           );
