@@ -152,7 +152,9 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
   @override
   Widget build(BuildContext context) {
     final va = generateVA(widget.pelanggan.userId);
+
     final metode = widget.metode.toLowerCase();
+
 
     Widget content;
 
@@ -173,6 +175,25 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               "Total: ${widget.total}",
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+          Text("Total: ${widget.total}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 20),
+          ElevatedButton.icon(
+            onPressed: openOvoApp,
+            icon: const Icon(Icons.open_in_new),
+            label: const Text("Lanjutkan ke Aplikasi OVO"),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.deepPurple),
+          ),
+        ],
+      );
+    } else if (widget.metode == 'qris' || widget.metode == 'gopay') {
+      content = Column(
+        children: [
+          Text("Total: ${widget.total}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 20),
+          Image.asset(
+            'assets/images/qris_placeholder.png',
+            height: 200,
+            fit: BoxFit.contain,
           ),
         ],
       );
@@ -198,6 +219,13 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
               "Total: ${widget.total}",
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
+          Text("Total: ${widget.total}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 20),
+          const Text("Virtual Account Anda:", style: TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(height: 6),
+          SelectableText(
+            va,
+            style: const TextStyle(fontSize: 20, letterSpacing: 2),
           ),
         ],
       );
@@ -309,5 +337,4 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       ),
     );
   }
-
 }
