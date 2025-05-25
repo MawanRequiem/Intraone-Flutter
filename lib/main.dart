@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:mobile/views/batalkan_paket_page.dart';
 import 'package:mobile/views/payment_method_page.dart';
+import 'package:mobile/views/upgrade_page.dart';
+import 'models/pelangganModel.dart';
 import 'views/login_page.dart';
 import 'views/home_page.dart';
 import 'views/payment_page.dart';
-import 'views/batalkan_paket_page.dart';
 import 'utils/user_session.dart';
 
 void main() {
@@ -35,18 +37,24 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(primarySwatch: Colors.blue),
           home: snapshot.data,
           routes: {
+            '/batalkan-paket': (context) => const BatalkanPaketPage(),
             '/login': (context) => const LoginPage(),
             '/home': (context) => const HomePage(),
             '/payment': (context) => const PaymentPage(),
             '/payment-method': (context) {
               final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
               return PaymentMethodPage(
+                  pelanggan: args['pelanggan'],
                   userId: args['userId'],
                   metode: args['metode'],
                   total: args['total'],
+                  jenis: args['jenis']
               );
             },
-            '/batalkan-paket': (context) => const BatalkanPaketPage(),
+            '/upgrade': (context) {
+              final pelanggan = ModalRoute.of(context)!.settings.arguments as Pelanggan;
+              return UpgradePage(pelanggan: pelanggan);
+            },
           });
       },
     );

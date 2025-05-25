@@ -37,9 +37,11 @@ class _PaymentPageState extends State<PaymentPage> {
       context,
       '/payment-method',
       arguments: {
+        'pelanggan' : pelanggan,
         'userId': pelanggan.userId,
         'metode': selectedMethod,
         'total': pelanggan.totalHarga,
+        'jenis': jenisPembayaran
       },
     );
   }

@@ -1,26 +1,31 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mobile/controllers/pelangganController.dart';
 import 'package:mobile/views/home_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../controllers/transaksiController.dart';
+import '../models/pelangganModel.dart';
 import '../models/transaksiModel.dart';
 import '../utils/user_session.dart';
-import 'home_page.dart';
+
 final transaksiController = TransaksiController();
 final pelangganController = PelangganController();
 
 class PaymentMethodPage extends StatefulWidget {
+  final Pelanggan pelanggan;
   final String userId;
   final String metode;
   final String total;
-
+  final String jenis;
 
   const PaymentMethodPage({
     super.key,
+    required this.pelanggan,
     required this.userId,
     required this.metode,
     required this.total,
+    required this.jenis,
   });
 
   @override
@@ -29,9 +34,10 @@ class PaymentMethodPage extends StatefulWidget {
 
 class _PaymentMethodPageState extends State<PaymentMethodPage> {
   late Timer _timer;
-  int _countdown = 900; // 15 menit = 900 detik
+  int _countdown = 900;
   bool isConfirmed = false;
 
+  final NumberFormat currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp', decimalDigits: 0);
 
   @override
   void initState() {
@@ -80,56 +86,73 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
   }
 
   Future<void> confirmPayment() async {
+    final pelanggan = widget.pelanggan;
 
     final transaksi = Transaksi(
-      durasi: 1, // sementara 1, bisa disesuaikan jika ada data durasi di args
-      jenis: 'perpanjang',
+      durasi: pelanggan.durasiBerlangganan,
+      jenis: widget.jenis,
       metode: widget.metode,
-      paket: 'Paket Internet', // atau ambil dari argumen jika tersedia
+      paket: pelanggan.paketInternet,
       tanggal: DateTime.now().toIso8601String(),
-      total: widget.total,
-      userId: widget.userId,
+      total: currencyFormat.format(int.parse(widget.total)),
+      userId: pelanggan.userId,
     );
 
     print(transaksi.toJson());
-    final response = await transaksiController.postTransaksi(transaksi);
-    if (response) {
-      final okLangganan = await transaksiController.updateLangganan(
-        widget.userId,
-        transaksi.durasi,
-      );
-      if (!okLangganan) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Transaksi sudah dicatat, tapi gagal update masa langganan.")),
-        );
-        return;
-      }
-      setState(() {
-        isConfirmed = true;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Pembayaran berhasil dikonfirmasi."))
-      );
-      Future.delayed(const Duration(seconds: 2), () async {
-        final updatedPelanggan = await pelangganController.getPelanggan(widget.userId);
-        if (updatedPelanggan != null) {
-          final withUserId = updatedPelanggan.copyWithUserId(widget.userId);
-          await UserSession().setPelanggan(withUserId);
-        }
-        Navigator.pushReplacementNamed(context, '/home');
-      });
-    } else {
+    final success = await transaksiController.postTransaksi(transaksi);
+    if (!success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Gagal menyimpan transaksi.")),
       );
+      return;
     }
 
+    final updateData = {
+      'paketInternet': pelanggan.paketInternet,
+      'kategoriPaket': pelanggan.kategoriPaket,
+      'hargaPaket': pelanggan.hargaPaket,
+      'totalHarga': currencyFormat.format(int.parse(widget.total)),
+    };
 
+    final updateSuccess = await pelangganController.updatePelanggan(pelanggan.userId, updateData);
+    if (!updateSuccess) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Transaksi dicatat, tapi gagal update data pelanggan.")),
+      );
+      return;
+    }
+
+    final okLangganan = await transaksiController.updateLangganan(
+      pelanggan.userId,
+      transaksi.durasi,
+    );
+    if (!okLangganan) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Transaksi dicatat, tapi gagal update masa langganan.")),
+      );
+      return;
+    }
+
+    setState(() => isConfirmed = true);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Pembayaran berhasil dikonfirmasi.")),
+    );
+
+    Future.delayed(const Duration(seconds: 2), () async {
+      final updatedPelanggan = await pelangganController.getPelanggan(pelanggan.userId);
+      if (updatedPelanggan != null) {
+        final withUserId = updatedPelanggan.copyWithUserId(pelanggan.userId);
+        await UserSession().setPelanggan(withUserId);
+      }
+      Navigator.pushReplacementNamed(context, '/home');
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final va = generateVA(widget.userId);
+    final va = generateVA(widget.pelanggan.userId);
+    final totalRupiah = currencyFormat.format(int.parse(widget.total));
 
     Widget content;
 
@@ -137,7 +160,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       content = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Total: ${widget.total}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text("Total: $totalRupiah", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
           ElevatedButton.icon(
             onPressed: openOvoApp,
@@ -150,7 +173,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
     } else if (widget.metode == 'qris' || widget.metode == 'gopay') {
       content = Column(
         children: [
-          Text("Total: ${widget.total}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text("Total: $totalRupiah", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
           Image.asset(
             'assets/images/qris_placeholder.png',
@@ -163,7 +186,7 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       content = Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Total: ${widget.total}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          Text("Total: $totalRupiah", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
           const Text("Virtual Account Anda:", style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 6),
