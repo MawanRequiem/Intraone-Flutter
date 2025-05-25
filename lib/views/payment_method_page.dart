@@ -153,12 +153,28 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
   Widget build(BuildContext context) {
     final va = generateVA(widget.pelanggan.userId);
 
+    final metode = widget.metode.toLowerCase();
+
+
     Widget content;
 
-    if (widget.metode == 'ovo') {
+    if (metode == 'qris' || metode == 'gopay') {
       content = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 16),
+          Center(
+            child: Image.asset(
+              'assets/images/QRcode.png',
+              height: 200,
+              fit: BoxFit.contain,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Center(
+            child: Text(
+              "Total: ${widget.total}",
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           Text("Total: ${widget.total}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
           ElevatedButton.icon(
@@ -183,8 +199,26 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
       );
     } else {
       content = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          const SizedBox(height: 16),
+          const Text(
+            "Virtual Account Anda",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 8),
+          Center(
+            child: SelectableText(
+              va,
+              style: const TextStyle(fontSize: 22, letterSpacing: 2),
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 24),
+          Center(
+            child: Text(
+              "Total: ${widget.total}",
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           Text("Total: ${widget.total}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
           const Text("Virtual Account Anda:", style: TextStyle(fontWeight: FontWeight.bold)),
@@ -198,30 +232,108 @@ class _PaymentMethodPageState extends State<PaymentMethodPage> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Pembayaran")),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            content,
-            const SizedBox(height: 24),
-            Text("Sisa waktu pembayaran: ${getFormattedTime()}",
-                style: const TextStyle(fontSize: 16, color: Colors.red)),
-            const SizedBox(height: 20),
-            if (!isConfirmed)
-              ElevatedButton(
-                onPressed: confirmPayment,
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    padding: const EdgeInsets.symmetric(vertical: 12)),
-                child: const Text("Konfirmasi Pembayaran"),
-              )
-            else
-              const Text("Pembayaran telah dikonfirmasi!",
-                  style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
-          ],
-        ),
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          // Gradient Header
+          Container(
+            height: 100,
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF007BFF), Color(0xFF00C6A0)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+          ),
+
+          SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // AppBar style
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        "Metode Pembayaran",
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Konten putih
+                Expanded(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        content,
+                        const SizedBox(height: 24),
+                        Text(
+                          "Sisa waktu pembayaran: ${getFormattedTime()}",
+                          style: const TextStyle(fontSize: 16, color: Colors.black),
+                        ),
+                        const SizedBox(height: 20),
+                        if (!isConfirmed)
+                          SizedBox(
+                            width: double.infinity,
+                            child: InkWell(
+                              onTap: confirmPayment,
+                              borderRadius: BorderRadius.circular(12),
+                              child: Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [Color(0xFF007BFF), Color(0xFF00C6A0)],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Center(
+                                  child: Text(
+                                    "Konfirmasi Pembayaran",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        else
+                          const Text(
+                            "Pembayaran telah dikonfirmasi!",
+                            style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

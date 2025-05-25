@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../models/pelangganModel.dart';
 import '../utils/user_session.dart';
 import 'easter_egg_page.dart';
@@ -8,6 +9,16 @@ int _janitraTapCount = 0;
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
+
+  String formatTanggalLahir(String rawDate) {
+    try {
+      final date = DateTime.parse(rawDate).toLocal();
+      final formatter = DateFormat('d MMMM yyyy', 'id_ID');
+      return formatter.format(date);
+    } catch (_) {
+      return rawDate;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,8 +81,7 @@ class ProfilePage extends StatelessWidget {
                       )
                             : _infoBlock('Nama:', pelanggan.nama),
                             _infoBlock('Email:', pelanggan.email),
-                            _infoBlock('Tempat, Tanggal Lahir:', '${pelanggan.tempatLahir}, ${pelanggan.tanggalLahir}'),
-                            _infoBlock('No. KTP:', pelanggan.noKTP),
+                            _infoBlock('Tempat, Tanggal Lahir:', '${pelanggan.tempatLahir}, ${formatTanggalLahir(pelanggan.tanggalLahir)}'),                            _infoBlock('No. KTP:', pelanggan.noKTP),
                             _infoBlock('Alamat:', pelanggan.alamat),
                             _infoBlock('Kota:', pelanggan.kota),
                             _infoBlock('Paket:', pelanggan.paketInternet),

@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
                   jenis: args['jenis']
               );
             },
-            '/upgrade': (context) {
+            '/upgrade-page': (context) {
               final pelanggan = ModalRoute.of(context)!.settings.arguments as Pelanggan;
               return UpgradePage(pelanggan: pelanggan);
             },

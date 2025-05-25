@@ -7,6 +7,7 @@ import '../controllers/pelangganController.dart';
 import '../utils/user_session.dart';
 import 'profile_page.dart';
 import 'history_transaksi.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -23,7 +24,9 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    loadPelanggan();
+    initializeDateFormatting('id_ID', null).then((_) {
+      loadPelanggan();
+    });
   }
 
   void loadPelanggan() async {
@@ -123,14 +126,44 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void showUpgradeConfirmation(BuildContext context, Pelanggan pelanggan) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Konfirmasi Upgrade"),
+          content: const Text("Apakah Anda ingin mengubah paket langganan Anda?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Batal"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // tutup dialog
+                Navigator.pushNamed(
+                  context,
+                  '/upgrade-page',
+                  arguments: pelanggan,
+                ).then((result) {
+                  if (result == true) {
+                    loadPelanggan(); // refresh data
+                  }
+                });
+              },
+              child: const Text("Lanjutkan"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-  String formatDate(String rawDate) {
-    try {
-      final date = DateTime.parse(rawDate).toLocal();
-      return '${DateFormat("d MMMM y 'pukul' HH.mm", 'id_ID').format(date)} WIB';
-    } catch (e) {
-      return rawDate;
-    }
+
+  String formatTanggal(String rawDateTime) {
+    final dateTime = DateTime.parse(rawDateTime).toLocal();
+    final formatter = DateFormat("d MMMM yyyy 'pukul' HH.mm", 'id_ID');
+    return '${formatter.format(dateTime)} WIB';
   }
 
   @override
@@ -176,10 +209,10 @@ class _HomePageState extends State<HomePage> {
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
                     child: ListView(
                       children: [
-                        _infoLine(pelanggan!.paketInternet, bold: true),
-                        _infoLine('Durasi: ${pelanggan!.durasiBerlangganan} bulan'),
-                        _infoLine('Total Harga: ${pelanggan!.totalHarga}'),
-                        _infoLine('Tenggat Waktu: ${formatDate(pelanggan!.expiryDate)}'),
+                        _infoLine('Paket', pelanggan!.paketInternet, bold: true),
+                        _infoLine('Durasi:', '${pelanggan!.durasiBerlangganan} bulan'),
+                        _infoLine('Total Harga:', '${pelanggan!.totalHarga}'),
+                        _infoLine('Tenggat Waktu:', '${formatTanggal(pelanggan!.expiryDate)}'),
                         _statusLine(pelanggan!.status),
                         const SizedBox(height: 24),
                         _gradientButton('Perpanjang Paket',
@@ -193,10 +226,11 @@ class _HomePageState extends State<HomePage> {
                             }
                           },),
                         const SizedBox(height: 12),
-                        _gradientButton('Upgrade Paket', [Color(0xFF00B4DB), Color(0xFF0083B0)], onTap: () {
-                            final pelanggan = this.pelanggan;
-                            if (pelanggan != null) {
-                              Navigator.push(context, MaterialPageRoute(builder: (_) => UpgradePage(pelanggan: pelanggan)),);}
+                        _gradientButton(
+                            'Upgrade Paket',
+                            [Color(0xFF00B4DB), Color(0xFF0083B0)],
+                            onTap: () {
+                              showUpgradeConfirmation(context, pelanggan!);
                             }
                         ),
                         const SizedBox(height: 12),
@@ -220,45 +254,65 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _infoLine(String text, {bool bold = false}) {
+  Widget _infoLine(String text, String value, {bool bold = false}) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: Text(
-        text,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: bold ? FontWeight.bold : FontWeight.normal,
-        ),
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            text,
+            style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(value, style:  TextStyle(
+              fontSize: 15,
+              fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+            )
+          ),
+        ],
       ),
     );
   }
 
   Widget _statusLine(String status) {
-    final isActive = status.toLowerCase() == 'aktif';
-    final statusColor = isActive ? Colors.green : Colors.red;
+    final lowerStatus = status.toLowerCase();
+    Color statusColor;
+
+    if (lowerStatus == 'aktif') {
+      statusColor = Colors.green;
+    } else if (lowerStatus == 'pending') {
+      statusColor = Colors.orange;
+    } else {
+      statusColor = Colors.red;
+    }
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: RichText(
-        text: TextSpan(
-          style: const TextStyle(fontSize: 16),
-          children: [
-            const TextSpan(
-              text: 'Status: ',
-              style: TextStyle(color: Colors.black),
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Status:',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            status,
+            style: TextStyle(
+              color: statusColor,
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
             ),
-            TextSpan(
-              text: status,
-              style: TextStyle(
-                color: statusColor,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
+
 
 
   Widget _gradientButton(String label, List<Color> colors, {required Null Function() onTap}) {

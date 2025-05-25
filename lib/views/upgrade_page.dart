@@ -93,8 +93,9 @@ class _UpgradePageState extends State<UpgradePage> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
+          // Gradient background yang lebih pendek
           Container(
-            height: 120,
+            height: 100, // Ubah dari 120 jadi 100
             width: double.infinity,
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -104,26 +105,42 @@ class _UpgradePageState extends State<UpgradePage> {
               ),
             ),
           ),
+
           SafeArea(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(24),
-                  child: const Text(
-                    'Upgrade Paket',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
+                // Header: ada tombol back + title
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () => Navigator.pop(context), // ke halaman sebelumnya
+                      ),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Upgrade Paket',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+
+                const SizedBox(height: 16), // Spacer agar teks bawah tidak terlalu dekat
+
+                // Konten utama
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: ListView(
                       children: [
+                        const SizedBox(height: 16),
                         const Text(
                           "Pilih Paket Baru",
                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -143,6 +160,7 @@ class _UpgradePageState extends State<UpgradePage> {
                             ),
                             child: ListTile(
                               title: Text(entry.key),
+                              subtitle: Text("Rp. ${entry.value}/bulan"),
                               subtitle: Text("Rp ${entry.value}/bulan"),
                               onTap: () => setState(() => selectedPaket = entry.key),
                             ),
@@ -150,17 +168,32 @@ class _UpgradePageState extends State<UpgradePage> {
                         }),
                         const SizedBox(height: 16),
                         const Text("Durasi Langganan", style: TextStyle(fontWeight: FontWeight.bold)),
-                        Row(
-                          children: [
-                            IconButton(onPressed: () => setState(() => durasi = (durasi - 1).clamp(1, 12)), icon: const Icon(Icons.remove)),
-                            Text("$durasi bulan"),
-                            IconButton(onPressed: () => setState(() => durasi++), icon: const Icon(Icons.add)),
-                          ],
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey.shade400, width: 2),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              IconButton(
+                                onPressed: () => setState(() => durasi = (durasi - 1).clamp(1, 12)),
+                                icon: const Icon(Icons.remove),
+                              ),
+                              Text("$durasi bulan", style: const TextStyle(fontSize: 16)),
+                              IconButton(
+                                onPressed: () => setState(() => durasi++),
+                                icon: const Icon(Icons.add),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(height: 24),
                         _gradientButton(
                           'Lanjut ke Pembayaran',
-                          [Color(0xFF00C6A0), Color(0xFF00B894)],
+                          [Color(0xFF00C853), Color(0xFF00BFA5)],
                           _handleLanjutPembayaran,
                           disabled: selectedPaket == null,
                         ),
@@ -176,4 +209,5 @@ class _UpgradePageState extends State<UpgradePage> {
       ),
     );
   }
+}
 }
