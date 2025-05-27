@@ -20,10 +20,24 @@ class MyApp extends StatelessWidget {
     return isLoggedIn ? const HomePage() : const LoginPage();
   }
 
+  Future<void> _clearSessionOnStart() async {
+    await UserSession().clearSession(); // Paksa hapus sesi saat app start
+  }
+
+  Future<Widget> _initializeApp() async {
+    // Jalankan clear session terlebih dahulu
+    await _clearSessionOnStart();
+
+    // Setelah clear session selesai, baru jalankan get initial page
+    final initialPage = await _getInitialPage();
+
+    return initialPage;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _getInitialPage(),
+    return FutureBuilder<Widget>(
+      future: _initializeApp(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const MaterialApp(
@@ -32,30 +46,30 @@ class MyApp extends StatelessWidget {
         }
 
         return MaterialApp(
-          title: 'IntraOne App',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(primarySwatch: Colors.blue),
-          home: snapshot.data,
-          routes: {
-            '/batalkan-paket': (context) => const BatalkanPaketPage(),
-            '/login': (context) => const LoginPage(),
-            '/home': (context) => const HomePage(),
-            '/payment': (context) => const PaymentPage(),
-            '/payment-method': (context) {
-              final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
-              return PaymentMethodPage(
-                  pelanggan: args['pelanggan'],
-                  userId: args['userId'],
-                  metode: args['metode'],
-                  total: args['total'],
-                  jenis: args['jenis']
-              );
-            },
-            '/upgrade-page': (context) {
-              final pelanggan = ModalRoute.of(context)!.settings.arguments as Pelanggan;
-              return UpgradePage(pelanggan: pelanggan);
-            },
-          });
+            title: 'IntraOne App',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(primarySwatch: Colors.blue),
+            home: snapshot.data,
+            routes: {
+              '/batalkan-paket': (context) => const BatalkanPaketPage(),
+              '/login': (context) => const LoginPage(),
+              '/home': (context) => const HomePage(),
+              '/payment': (context) => const PaymentPage(),
+              '/payment-method': (context) {
+                final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+                return PaymentMethodPage(
+                    pelanggan: args['pelanggan'],
+                    userId: args['userId'],
+                    metode: args['metode'],
+                    total: args['total'],
+                    jenis: args['jenis']
+                );
+              },
+              '/upgrade-page': (context) {
+                final pelanggan = ModalRoute.of(context)!.settings.arguments as Pelanggan;
+                return UpgradePage(pelanggan: pelanggan);
+              },
+            });
       },
     );
   }

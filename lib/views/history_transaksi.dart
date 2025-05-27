@@ -24,6 +24,7 @@ class _HistoryTransaksiPageState extends State<HistoryTransaksiPage> {
     super.initState();
     initializeDateFormatting('id_ID', null).then((_) {
       fetchTransaksi();
+      print(riwayat);
     });
   }
 
@@ -33,6 +34,7 @@ class _HistoryTransaksiPageState extends State<HistoryTransaksiPage> {
 
     final controller = TransaksiController();
     final result = await controller.getHistory(user.userId);
+
 
     setState(() {
       riwayat = result;
@@ -116,7 +118,7 @@ class _HistoryTransaksiPageState extends State<HistoryTransaksiPage> {
                                 _row("Tanggal", formatTanggal(trx.tanggal)),
                                 _row("Jenis Transaksi", trx.jenis),
                                 _row("Paket", trx.paket),
-                                _row("Total", formatRupiah(trx.total)),
+                                _row("Total", trx.total),
                               ],
                             ),
                           ),

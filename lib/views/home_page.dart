@@ -4,6 +4,8 @@ import 'package:mobile/views/payment_method_page.dart';
 import 'package:mobile/views/upgrade_page.dart';
 import '../models/pelangganModel.dart';
 import '../controllers/pelangganController.dart';
+import '../models/announcementModel.dart';
+import '../controllers/announcementController.dart';
 import '../utils/user_session.dart';
 import 'profile_page.dart';
 import 'history_transaksi.dart';
@@ -20,12 +22,14 @@ class _HomePageState extends State<HomePage> {
   Pelanggan? pelanggan;
   bool loading = true;
   int currentIndex = 0;
+  Future<List<Announcement>>? _announcementFuture;
 
   @override
   void initState() {
     super.initState();
     initializeDateFormatting('id_ID', null).then((_) {
       loadPelanggan();
+      _announcementFuture = AnnouncementController().getAllAnnouncements();
     });
   }
 
@@ -45,7 +49,6 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-
   Future<void> updateHalaman() async {
     final data = await pelangganController.getPelanggan(pelanggan!.userId);
     if (!mounted) return;
@@ -60,7 +63,34 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> refreshAnnouncements() async {
+    setState(() {
+      loadPelanggan();
+      _announcementFuture = AnnouncementController().getAllAnnouncements();
+    });
+  }
+
+  // Helper method to check if user can perform actions
+  bool _canPerformActions() {
+    return pelanggan?.status.toLowerCase() != 'pending';
+  }
+
+  void _showPendingStatusMessage() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Tidak dapat melakukan aksi ini karena status paket Anda masih pending.'),
+        backgroundColor: Colors.orange,
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
+
   void showPerpanjangConfirmation(BuildContext context, Pelanggan pelanggan) {
+    if (!_canPerformActions()) {
+      _showPendingStatusMessage();
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (context) {
@@ -127,6 +157,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   void showUpgradeConfirmation(BuildContext context, Pelanggan pelanggan) {
+    if (!_canPerformActions()) {
+      _showPendingStatusMessage();
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (context) {
@@ -159,7 +194,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
   String formatTanggal(String rawDateTime) {
     final dateTime = DateTime.parse(rawDateTime).toLocal();
     final formatter = DateFormat("d MMMM yyyy 'pukul' HH.mm", 'id_ID');
@@ -170,11 +204,12 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     if (loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
 
+    final isPending = pelanggan?.status.toLowerCase() == 'pending';
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // Gradient header - mentok ke atas
           Container(
             height: 120,
             width: double.infinity,
@@ -190,7 +225,6 @@ class _HomePageState extends State<HomePage> {
           SafeArea(
             child: Column(
               children: [
-                // Header text
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(24),
@@ -207,41 +241,149 @@ class _HomePageState extends State<HomePage> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-                    child: ListView(
-                      children: [
-                        _infoLine('Paket', pelanggan!.paketInternet, bold: true),
-                        _infoLine('Durasi:', '${pelanggan!.durasiBerlangganan} bulan'),
-                        _infoLine('Total Harga:', '${pelanggan!.totalHarga}'),
-                        _infoLine('Tenggat Waktu:', '${formatTanggal(pelanggan!.expiryDate)}'),
-                        _statusLine(pelanggan!.status),
-                        const SizedBox(height: 24),
-                        _gradientButton('Perpanjang Paket',
-                          [Color(0xFF00C6A0), Color(0xFF00B894)],
-                          onTap: () {
-                            final pelanggan = this.pelanggan;
-                            if (pelanggan != null) {
+                    child: RefreshIndicator(
+                      onRefresh: refreshAnnouncements,
+                      child: ListView(
+                        children: [
+                          _infoLine('Paket', pelanggan!.paketInternet, bold: true),
+                          _infoLine('Durasi:', '${pelanggan!.durasiBerlangganan} bulan'),
+                          _infoLine('Total Harga:', '${pelanggan!.totalHarga}'),
+                          _infoLine('Tenggat Waktu:', '${formatTanggal(pelanggan!.expiryDate)}'),
+                          _statusLine(pelanggan!.status),
+                          const SizedBox(height: 24),
 
-                              print(pelanggan.toJson());
-                              showPerpanjangConfirmation(context, pelanggan!);
-                            }
-                          },),
-                        const SizedBox(height: 12),
-                        _gradientButton(
-                            'Upgrade Paket',
-                            [Color(0xFF00B4DB), Color(0xFF0083B0)],
+                          // Show warning message if status is pending
+                          if (isPending)
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              margin: const EdgeInsets.only(bottom: 16),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.shade50,
+                                border: Border.all(color: Colors.orange.shade200),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.info_outline, color: Colors.orange.shade700, size: 20),
+                                  const SizedBox(width: 8),
+                                  Expanded(
+                                    child: Text(
+                                      'Paket Anda sedang dalam status pending. Anda tidak dapat melakukan perpanjang atau upgrade saat ini.',
+                                      style: TextStyle(
+                                        color: Colors.orange.shade700,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+
+                          _gradientButton('Perpanjang Paket',
+                            isPending
+                                ? [Colors.grey.shade400, Colors.grey.shade500]
+                                : [Color(0xFF00C6A0), Color(0xFF00B894)],
+                            isEnabled: !isPending,
                             onTap: () {
-                              showUpgradeConfirmation(context, pelanggan!);
-                            }
-                        ),
-                        const SizedBox(height: 12),
-                        _gradientButton(
-                          'Batalkan Paket',
-                          [Color(0xFFFF512F), Color(0xFFDD2476)],
-                          onTap: () {
-                            showBatalkanConfirmation(context, pelanggan!);
-                          },
-                        ),
-                      ],
+                              final pelanggan = this.pelanggan;
+                              if (pelanggan != null) {
+                                print(pelanggan.toJson());
+                                showPerpanjangConfirmation(context, pelanggan!);
+                              }
+                            },),
+                          const SizedBox(height: 12),
+                          _gradientButton(
+                              'Upgrade Paket',
+                              isPending
+                                  ? [Colors.grey.shade400, Colors.grey.shade500]
+                                  : [Color(0xFF00B4DB), Color(0xFF0083B0)],
+                              isEnabled: !isPending,
+                              onTap: () {
+                                showUpgradeConfirmation(context, pelanggan!);
+                              }
+                          ),
+                          const SizedBox(height: 12),
+                          _gradientButton(
+                            'Batalkan Paket',
+                            [Color(0xFFFF512F), Color(0xFFDD2476)],
+                            onTap: () {
+                              showBatalkanConfirmation(context, pelanggan!);
+                            },
+                          ),
+                          const SizedBox(height: 32),
+
+                          const Text(
+                            'Pengumuman',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          FutureBuilder<List<Announcement>>(
+                            future: _announcementFuture,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return const Center(child: CircularProgressIndicator());
+                              } else if (snapshot.hasError) {
+                                return Text('Error: ${snapshot.error}');
+                              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                return const Text('Tidak ada pengumuman.');
+                              } else {
+                                // FILTER hanya yang aktif
+                                final announcements = snapshot.data!
+                                    .where((a) => a.statusAnnouncement?.toLowerCase() == 'aktif')
+                                    .toList();
+
+                                if (announcements.isEmpty) {
+                                  return const Text('Tidak ada pengumuman aktif.');
+                                }
+
+                                return Column(
+                                  children: announcements.map((a) {
+                                    return Container(
+                                      width: double.infinity,
+                                      margin: const EdgeInsets.symmetric(vertical: 8),
+                                      child: Card(
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          side: const BorderSide(color: Colors.black12),
+                                        ),
+                                        color: Colors.white,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(16),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                a.title,
+                                                style: const TextStyle(
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color(0xFF007BFF),
+                                                ),
+                                              ),
+                                              const SizedBox(height: 8),
+                                              Text(
+                                                a.content,
+                                                style: const TextStyle(fontSize: 15),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                );
+
+                              }
+                            },
+                          ),
+
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -269,9 +411,9 @@ class _HomePageState extends State<HomePage> {
           ),
           const SizedBox(height: 4),
           Text(value, style:  TextStyle(
-              fontSize: 15,
-              fontWeight: bold ? FontWeight.bold : FontWeight.normal,
-            )
+            fontSize: 15,
+            fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+          )
           ),
         ],
       ),
@@ -313,11 +455,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-
-
-  Widget _gradientButton(String label, List<Color> colors, {required Null Function() onTap}) {
+  Widget _gradientButton(String label, List<Color> colors, {required VoidCallback onTap, bool isEnabled = true}) {
     return InkWell(
-      onTap: onTap,
+      onTap: isEnabled ? onTap : null,
       borderRadius: BorderRadius.circular(10),
       child: Container(
         height: 48,
@@ -329,7 +469,10 @@ class _HomePageState extends State<HomePage> {
         child: Center(
           child: Text(
             label,
-            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: isEnabled ? Colors.white : Colors.white70,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
       ),
@@ -363,7 +506,4 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-
-
 }

@@ -161,7 +161,6 @@ class _UpgradePageState extends State<UpgradePage> {
                             child: ListTile(
                               title: Text(entry.key),
                               subtitle: Text("Rp. ${entry.value}/bulan"),
-                              subtitle: Text("Rp ${entry.value}/bulan"),
                               onTap: () => setState(() => selectedPaket = entry.key),
                             ),
                           );
@@ -209,5 +208,5 @@ class _UpgradePageState extends State<UpgradePage> {
       ),
     );
   }
-}
+
 }
