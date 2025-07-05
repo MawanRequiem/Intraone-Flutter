@@ -91,15 +91,9 @@ Make sure the backend API is deployed and accessible for full functionality.
 
 ---
 
-## 📜 License
-
-MIT License. Contributions are welcome!
-
----
-
 ## 📸 Project Example
 
-### Login Page, Dashboard Inactive, Dashboard Active
+### 1. Login Page, Dashboard Inactive, Dashboard Active
 
 <table>
   <tr>
@@ -109,4 +103,24 @@ MIT License. Contributions are welcome!
   </tr>
 </table>
 
-This places the three screenshots neatly in a single row, ideal for landscape-oriented images.
+
+### 2. Profile Page, Payment History, Upgrade Subscription
+
+<table>
+  <tr>
+    <td><img src="./assets/flutter_profile.png" width="250"/></td>
+    <td><img src="./assets/flutter_history.png" width="250"/></td>
+    <td><img src="./assets/flutter_upgrade.png" width="250"/></td>
+  </tr>
+</table>
+
+### 3. Extend Subscription, Qris Payment, Cancel Subscription
+
+<table>
+  <tr>
+    <td><img src="./assets/flutter_payment.png" width="250"/></td>
+    <td><img src="./assets/flutter_qris.png" width="250"/></td>
+    <td><img src="./assets/flutter_payment.png" width="250"/></td>
+  </tr>
+</table>
+
