@@ -94,4 +94,4 @@ Make sure the backend API is deployed and accessible for full functionality.
 ## Project Example
 
 ### 1. Login Page, Dashboard Inactive, Dashboard Active
-[!Login Page](./assets/flutter_login.png)                       [!dashboard page inactive](./assets/flutter_dashboard_pending.png)              [!Dashboard Page Active](./assets/flutter_dashboard_active.png)
+![Login Page](./assets/flutter_login.png)                       ![dashboard page inactive](./assets/flutter_dashboard_pending.png)              ![Dashboard Page Active](./assets/flutter_dashboard_active.png)
