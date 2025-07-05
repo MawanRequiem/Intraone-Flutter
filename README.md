@@ -91,7 +91,22 @@ Make sure the backend API is deployed and accessible for full functionality.
 
 ---
 
-## Project Example
+## 📜 License
 
-### 1. Login Page, Dashboard Inactive, Dashboard Active
-![Login Page](./assets/flutter_login.png)                       ![dashboard page inactive](./assets/flutter_dashboard_pending.png)              ![Dashboard Page Active](./assets/flutter_dashboard_active.png)
+MIT License. Contributions are welcome!
+
+---
+
+## 📸 Project Example
+
+### Login Page, Dashboard Inactive, Dashboard Active
+
+<table>
+  <tr>
+    <td><img src="./assets/flutter_login.png" width="250"/></td>
+    <td><img src="./assets/flutter_dashboard_pending.png" width="250"/></td>
+    <td><img src="./assets/flutter_dashboard_active.png" width="250"/></td>
+  </tr>
+</table>
+
+This places the three screenshots neatly in a single row, ideal for landscape-oriented images.
