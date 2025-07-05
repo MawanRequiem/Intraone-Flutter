@@ -4,7 +4,7 @@
 
 Welcome to the **Intraone Mobile App**, the Flutter-powered mobile companion for the Intraone ISP platform! This app enables users to manage internet subscriptions, make payments, and check their account status directly from their mobile devices, providing the same experience as the web platform but optimized for mobile use.
 
-✨ **It integrates seamlessly with the [Intraone Website](https://github.com/YourUsername/Intraone-main), sharing the same backend API and real-time database.** ✨
+✨ **It integrates seamlessly with the [Intraone Website]((https://github.com/MawanRequiem/Intraone)), sharing the same backend API and real-time database.** ✨
 
 ---
 
